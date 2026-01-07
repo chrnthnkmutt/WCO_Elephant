@@ -23,7 +23,7 @@ This is a Streamlit-based interactive prototype for the Elephant Monitoring & Ea
 
 3. **Run the Streamlit app:**
    ```bash
-   streamlit run app.py
+   streamlit run Map_Dashboard.py
    ```
 
 ## Scenarios for Demo
