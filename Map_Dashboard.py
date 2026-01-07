@@ -6,7 +6,7 @@ import shared_state
 
 # Page Configuration
 st.set_page_config(
-    page_title="Live Dashboard - Elephant Monitoring",
+    page_title="Map Dashboard - Elephant Monitoring",
     page_icon="🐘",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -41,7 +41,7 @@ col1, col2 = st.columns([3, 1])
 
 with col1:
     st.subheader("Real-Time Tracking Map")
-    m = folium.Map(location=[14.3, 101.4], zoom_start=13, tiles="CartoDB dark_matter")
+    m = folium.Map(location=[14.3, 101.4], zoom_start=13, tiles="OpenStreetMap")
     
     # Zones
     # Zone 1: Forest
@@ -60,6 +60,20 @@ with col1:
         color="red", fill=True, fill_opacity=0.2, popup="Zone 3: Community"
     ).add_to(m)
 
+    # Decorative Road
+    folium.PolyLine(
+        locations=[[14.27, 101.35], [14.27, 101.45]],
+        color="gray", weight=4, opacity=0.5, popup="Main Road"
+    ).add_to(m)
+
+    # Residential Houses
+    folium.Marker([14.26, 101.38], popup="House A", icon=folium.Icon(color='blue', icon='home')).add_to(m)
+    folium.Marker([14.265, 101.42], popup="House B", icon=folium.Icon(color='blue', icon='home')).add_to(m)
+
+    # Sensors (Static for visualization)
+    folium.CircleMarker([14.305, 101.38], radius=6, color="#28a745", fill=True, fill_opacity=0.7, popup="Sensor S-01 (Online)").add_to(m)
+    folium.CircleMarker([14.305, 101.42], radius=6, color="#ffc107", fill=True, fill_opacity=0.7, popup="Sensor S-02 (Warning)").add_to(m)
+
     # Elephant Marker
     folium.Marker(
         st.session_state.elephant_pos,
@@ -75,6 +89,42 @@ with col1:
         ).add_to(m)
     
     st_folium(m, width=900, height=500, key="main_map")
+
+    # Map Legend
+    st.markdown("""
+        <div style="
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        ">
+            <h4 style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 1.1rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Map Legend</h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
+                    <span style="font-size: 1.2rem; margin-right: 10px;">🏠</span> Residential House
+                </div>
+                <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
+                    <span style="font-size: 1.2rem; margin-right: 10px;">🐘</span> Elephant
+                </div>
+                <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
+                    <div style="width: 18px; height: 18px; background-color: rgba(34, 139, 34, 0.4); border: 2px solid green; margin-right: 10px;"></div> Elephant Herd area
+                </div>
+                <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
+                    <span style="color: #28a745; font-size: 1.5rem; margin-right: 10px; line-height: 0;">●</span> Sensor (Online)
+                </div>
+                <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
+                    <span style="color: #ffc107; font-size: 1.5rem; margin-right: 10px; line-height: 0;">●</span> Sensor (Warning)
+                </div>
+                <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
+                    <div style="border-top: 2px dashed #ff4b4b; width: 25px; margin-right: 10px;"></div> Predicted Path
+                </div>
+                <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
+                    <div style="width: 25px; height: 6px; background-color: #666; margin-right: 10px;"></div> Road
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
 with col2:
     st.subheader("Live Sensor Feed")

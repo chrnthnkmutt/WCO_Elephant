@@ -56,11 +56,11 @@ def apply_custom_css():
         }
 
         .main {
-            background-color: #0e1117;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #000000;
         }
         .stSidebar {
-            background-color: #1a1c24;
+            background-color: #f0f2f6;
         }
         </style>
         """, unsafe_allow_html=True)
