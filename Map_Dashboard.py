@@ -3,6 +3,8 @@ import folium
 from streamlit_folium import st_folium
 import time
 import shared_state
+from line_handler import send_notification
+import shared_state
 
 # Page Configuration
 st.set_page_config(
@@ -25,6 +27,7 @@ sim_mode = st.sidebar.selectbox("Select Scenario",
 
 if st.sidebar.button("Run Simulation"):
     shared_state.trigger_scenario(sim_mode)
+    shared_state.save_to_disk()  # Save changes to JSON for bridge.py
 
 st.sidebar.divider()
 st.sidebar.subheader("System Status")

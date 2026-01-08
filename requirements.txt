@@ -4,3 +4,7 @@ streamlit-folium
 plotly
 pandas
 numpy
+line-bot-sdk
+flask
+python-dotenv
+google-genai
