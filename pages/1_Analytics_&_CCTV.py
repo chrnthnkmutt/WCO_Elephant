@@ -25,8 +25,8 @@ shared_state.initialize_state()
 # Custom CSS
 shared_state.apply_custom_css()
 
-MODEL_PATH = Path(r"C:\Users\user\OneDrive\เดสก์ท็อป\Work\Intern\BKS\WCO_Elephant\model\V12img10\best.pt")
-SAMPLE_IMAGE_PATH = Path(r"C:\Users\user\OneDrive\เดสก์ท็อป\Work\Intern\BKS\WCO_Elephant\dataset\wild-elephant-dataset_0002.jpg")
+MODEL_PATH = Path(__file__).parent.parent / "model" / "V12img10" / "best.pt"
+SAMPLE_IMAGE_PATH = Path(__file__).parent.parent / "dataset" / "wild-elephant-dataset_0002.jpg"
 
 @st.cache_resource
 def load_yolo_model(model_path: Path):

@@ -1,0 +1,9 @@
+{
+    "threat_level": "MEDIUM",
+    "status_bar": "WARNING - Buffer Zone Breach",
+    "elephant_pos": [
+        14.3,
+        101.42
+    ],
+    "timestamp": 1767862396.2722414
+}
