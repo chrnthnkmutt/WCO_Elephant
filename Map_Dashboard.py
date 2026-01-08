@@ -75,9 +75,32 @@ with col1:
     folium.Marker([14.26, 101.38], popup="House A", icon=folium.Icon(color='blue', icon='home')).add_to(m)
     folium.Marker([14.265, 101.42], popup="House B", icon=folium.Icon(color='blue', icon='home')).add_to(m)
 
-    # Sensors (Static for visualization)
-    folium.CircleMarker([14.305, 101.38], radius=6, color="#28a745", fill=True, fill_opacity=0.7, popup="Sensor S-01 (Online)").add_to(m)
-    folium.CircleMarker([14.305, 101.42], radius=6, color="#ffc107", fill=True, fill_opacity=0.7, popup="Sensor S-02 (Warning)").add_to(m)
+    # Sensors from Shared State
+    for device in st.session_state.device_data:
+        try:
+            lat, lon = map(float, device["Coordinates"].split(","))
+            
+            if "Camera" in device["Type"]:
+                icon_color = "darkblue"
+                icon_name = "camera"
+            elif "Gateway" in device["Type"]:
+                icon_color = "black"
+                icon_name = "tower"
+            else: # Vibration or others
+                icon_color = "green" if device["Status"] == "Online" else "red"
+                icon_name = "bell"
+
+            # Check for Warning status (mock logic: if battery < 20 or specifically marked)
+            if device["Battery"].startswith("15"): # Mock warning based on low battery
+                 icon_color = "orange"
+
+            folium.Marker(
+                [lat, lon], 
+                popup=f"{device['Device ID']} ({device['Type']}) - {device['Status']}", 
+                icon=folium.Icon(color=icon_color, icon=icon_name)
+            ).add_to(m)
+        except Exception as e:
+            st.error(f"Error plotting device {device['Device ID']}: {e}")
 
     # Elephant Marker
     folium.Marker(
