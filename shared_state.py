@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import json
 
 def initialize_state():
     if 'elephant_pos' not in st.session_state:
@@ -75,3 +76,22 @@ def apply_custom_css():
         }
         </style>
         """, unsafe_allow_html=True)
+
+def save_to_disk():
+    """
+    Synchronizes Streamlit session state to a local JSON file.
+    Uses time.time() to ensure 'bridge.py' detects every manual update.
+    """
+    try:
+        data = {
+            "threat_level": st.session_state.get("threat_level", "LOW"),
+            "status_bar": st.session_state.get("status_bar", ""),
+            "elephant_pos": st.session_state.get("elephant_pos", [14.439, 101.372]),
+            "timestamp": time.time() 
+        }
+        
+        with open("shared_data.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+            
+    except Exception as e:
+        print(f"Error saving shared state: {e}")

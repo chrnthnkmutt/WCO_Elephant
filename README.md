@@ -4,9 +4,22 @@
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Folium](https://img.shields.io/badge/Folium-77B829?style=for-the-badge&logo=Leaflet&logoColor=white)
 
+## Features
+- **Real-Time Map:** Visualizes Forest, Buffer, and Community zones with elephant tracking.
+- **Simulation Mode:** Trigger different scenarios (Normal, Buffer Breach, Critical Threat) to see how the system responds.
+- **Live Sensor Feed:** Mocked terminal log of sensor events.
+- **Line Notification Bridge:** Automated LINE alerts with real-time distance calculation and interactive features.
+- **Location Interaction:** Dynamic Quick Reply buttons for users to share their live location and Google Maps direction links for emergency response.
+- **Analytics Dashboard:** Historical data on sightings, incidents, and device status.
 An interactive Streamlit-based prototype for an **Elephant Monitoring & Early Warning System**. This application demonstrates how real-time sensor data, CCTV analytics, and automated notification systems can help mitigate human-elephant conflict (HEC).
 
 ## 🌟 Key Features
+
+1. **Setup Environment:**
+   Create a `.env` file in the root directory:
+   ```env
+   LINE_CHANNEL_ACCESS_TOKEN=your_token
+   MY_LINE_USER_ID=your_user_id
 
 ### 1. Live Dashboard (`Map_Dashboard.py`)
 - **Interactive Tracking Map:** Built with Folium, displaying Forest, Buffer, and Community zones.
@@ -58,9 +71,28 @@ An interactive Streamlit-based prototype for an **Elephant Monitoring & Early Wa
    ```
 
 2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+pip install -r requirements.txt
+
+```
+
+
+3. **Run the system (Use two terminals):**
+* **Terminal 1 (Dashboard):**
+```bash
+streamlit run Map_Dashboard.py
+
+```
+
+
+* **Terminal 2 (Noti Bridge):**
+```bash
+python bridge.py
+
+```
+
+
+
 
 3. **Run the application:**
    ```bash
