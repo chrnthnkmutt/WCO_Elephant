@@ -5,3 +5,7 @@ plotly
 pandas
 numpy
 ultralytics
+line-bot-sdk
+flask
+python-dotenv
+google-genai

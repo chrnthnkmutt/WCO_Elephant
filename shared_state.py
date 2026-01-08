@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import json
 
 def initialize_state():
     if 'elephant_pos' not in st.session_state:
@@ -12,6 +13,17 @@ def initialize_state():
         st.session_state.feed_logs = ["[09:00:00] System started."]
     if 'show_mobile' not in st.session_state:
         st.session_state.show_mobile = False
+    if 'device_data' not in st.session_state:
+        st.session_state.device_data = [
+            {"Device ID": "S-20", "Type": "Vibration", "Location": "Zone 2", "Coordinates": "14.305, 101.380", "Status": "Online", "Battery": "85%", "Last Ping": "1 min ago"},
+            {"Device ID": "S-21", "Type": "Vibration", "Location": "Zone 2", "Coordinates": "14.305, 101.420", "Status": "Online", "Battery": "92%", "Last Ping": "2 mins ago"},
+            {"Device ID": "CCTV-04", "Type": "Camera", "Location": "Zone 3", "Coordinates": "14.275, 101.400", "Status": "Online", "Battery": "100% (Solar)", "Last Ping": "Live"},
+            {"Device ID": "Node-4", "Type": "Radio Gateway", "Location": "Zone 1", "Coordinates": "14.330, 101.370", "Status": "Online", "Battery": "15%", "Last Ping": "5 mins ago"},
+            {"Device ID": "S-22", "Type": "Vibration", "Location": "Zone 2", "Coordinates": "14.300, 101.440", "Status": "Online", "Battery": "77%", "Last Ping": "1 min ago"},
+            {"Device ID": "CCTV-05", "Type": "Camera", "Location": "Zone 3", "Coordinates": "14.260, 101.410", "Status": "Online", "Battery": "100% (Solar)", "Last Ping": "Live"},
+            {"Device ID": "GW-01", "Type": "Gateway", "Location": "Zone 1", "Coordinates": "14.340, 101.430", "Status": "Online", "Battery": "98%", "Last Ping": "30 secs ago"},
+            {"Device ID": "GW-02", "Type": "Gateway", "Location": "Zone 3", "Coordinates": "14.280, 101.360", "Status": "Online", "Battery": "99%", "Last Ping": "45 secs ago"}
+        ]
 
 def trigger_scenario(scenario):
     if scenario == "Normal Operations":
@@ -64,3 +76,22 @@ def apply_custom_css():
         }
         </style>
         """, unsafe_allow_html=True)
+
+def save_to_disk():
+    """
+    Synchronizes Streamlit session state to a local JSON file.
+    Uses time.time() to ensure 'bridge.py' detects every manual update.
+    """
+    try:
+        data = {
+            "threat_level": st.session_state.get("threat_level", "LOW"),
+            "status_bar": st.session_state.get("status_bar", ""),
+            "elephant_pos": st.session_state.get("elephant_pos", [14.439, 101.372]),
+            "timestamp": time.time() 
+        }
+        
+        with open("shared_data.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+            
+    except Exception as e:
+        print(f"Error saving shared state: {e}")

@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import shared_state
+import folium
+from streamlit_folium import st_folium
 
 # Page Configuration
 st.set_page_config(
@@ -16,18 +18,24 @@ shared_state.initialize_state()
 # Custom CSS
 shared_state.apply_custom_css()
 
+@st.dialog("Device Location")
+def show_device_location(device_id, coords_str):
+    try:
+        lat, lon = map(float, coords_str.split(","))
+        st.write(f"**Device:** {device_id}")
+        st.write(f"**Coordinates:** {lat}, {lon}")
+        
+        m = folium.Map(location=[lat, lon], zoom_start=15, tiles="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", attr="Google Maps")
+        folium.Marker([lat, lon], popup=device_id, icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
+        st_folium(m, width=500, height=400, key=f"map_{device_id}")
+    except Exception as e:
+        st.error(f"Error parsing coordinates: {e}")
+
 st.title("⚙️ System Control Center")
 
 st.markdown("### Device Status Overview")
 
-device_data = pd.DataFrame({
-    "Device ID": ["S-20", "S-21", "CCTV-04", "Node-4", "S-22", "CCTV-05", "GW-01", "GW-02"],
-    "Type": ["Vibration", "Vibration", "Camera", "Radio Gateway", "Vibration", "Camera", "Gateway", "Gateway"],
-    "Location": ["Zone 2", "Zone 2", "Zone 3", "Zone 1", "Zone 2", "Zone 3", "Zone 1", "Zone 3"],
-    "Status": ["Online", "Online", "Online", "Online", "Online", "Online", "Online", "Online"],
-    "Battery": ["85%", "92%", "100% (Solar)", "15%", "77%", "100% (Solar)", "98%", "99%"],
-    "Last Ping": ["1 min ago", "2 mins ago", "Live", "5 mins ago", "1 min ago", "Live", "30 secs ago", "45 secs ago"]
-})
+device_data = pd.DataFrame(st.session_state.device_data)
 
 # Inject some simulated issues based on global state if needed, 
 # but for now we keep it simple or based on the 'System Health Check' scenario if we want to share that state across pages fully.
@@ -38,7 +46,18 @@ def highlight_status(val):
     color = 'green' if val == 'Online' else 'red'
     return f'color: {color}'
 
-st.dataframe(device_data.style.map(highlight_status, subset=['Status']), use_container_width=True)
+# Display Dataframe with Selection
+event = st.dataframe(
+    device_data.style.map(highlight_status, subset=['Status']), 
+    use_container_width=True,
+    on_select="rerun",
+    selection_mode="single-row"
+)
+
+if len(event.selection.rows) > 0:
+    selected_index = event.selection.rows[0]
+    selected_device = device_data.iloc[selected_index]
+    show_device_location(selected_device["Device ID"], selected_device["Coordinates"])
 
 st.divider()
 

@@ -3,6 +3,8 @@ import folium
 from streamlit_folium import st_folium
 import time
 import shared_state
+from line_handler import send_notification
+import shared_state
 
 # Page Configuration
 st.set_page_config(
@@ -25,6 +27,7 @@ sim_mode = st.sidebar.selectbox("Select Scenario",
 
 if st.sidebar.button("Run Simulation"):
     shared_state.trigger_scenario(sim_mode)
+    shared_state.save_to_disk()  # Save changes to JSON for bridge.py
 
 st.sidebar.divider()
 st.sidebar.subheader("System Status")
@@ -41,7 +44,12 @@ col1, col2 = st.columns([3, 1])
 
 with col1:
     st.subheader("Real-Time Tracking Map")
-    m = folium.Map(location=[14.3, 101.4], zoom_start=13, tiles="OpenStreetMap")
+    m = folium.Map(
+        location=[14.3, 101.4], 
+        zoom_start=13, 
+        tiles="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", 
+        attr="Google Maps"
+    )
     
     # Zones
     # Zone 1: Forest
@@ -70,9 +78,32 @@ with col1:
     folium.Marker([14.26, 101.38], popup="House A", icon=folium.Icon(color='blue', icon='home')).add_to(m)
     folium.Marker([14.265, 101.42], popup="House B", icon=folium.Icon(color='blue', icon='home')).add_to(m)
 
-    # Sensors (Static for visualization)
-    folium.CircleMarker([14.305, 101.38], radius=6, color="#28a745", fill=True, fill_opacity=0.7, popup="Sensor S-01 (Online)").add_to(m)
-    folium.CircleMarker([14.305, 101.42], radius=6, color="#ffc107", fill=True, fill_opacity=0.7, popup="Sensor S-02 (Warning)").add_to(m)
+    # Sensors from Shared State
+    for device in st.session_state.device_data:
+        try:
+            lat, lon = map(float, device["Coordinates"].split(","))
+            
+            if "Camera" in device["Type"]:
+                icon_color = "darkblue"
+                icon_name = "camera"
+            elif "Gateway" in device["Type"]:
+                icon_color = "black"
+                icon_name = "tower"
+            else: # Vibration or others
+                icon_color = "green" if device["Status"] == "Online" else "red"
+                icon_name = "bell"
+
+            # Check for Warning status (mock logic: if battery < 20 or specifically marked)
+            if device["Battery"].startswith("15"): # Mock warning based on low battery
+                 icon_color = "orange"
+
+            folium.Marker(
+                [lat, lon], 
+                popup=f"{device['Device ID']} ({device['Type']}) - {device['Status']}", 
+                icon=folium.Icon(color=icon_color, icon=icon_name)
+            ).add_to(m)
+        except Exception as e:
+            st.error(f"Error plotting device {device['Device ID']}: {e}")
 
     # Elephant Marker
     folium.Marker(
@@ -88,7 +119,7 @@ with col1:
             color="red", weight=5, dash_array='10', opacity=0.8
         ).add_to(m)
     
-    st_folium(m, width=900, height=500, key="main_map")
+    st_folium(m, use_container_width=True, height=500, key="main_map")
 
     # Map Legend
     st.markdown("""
@@ -100,7 +131,7 @@ with col1:
             margin-top: 10px;
         ">
             <h4 style="margin-top: 0; margin-bottom: 15px; color: #333; font-size: 1.1rem; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Map Legend</h4>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
                 <div style="display: flex; align-items: center; color: #333; font-size: 0.9rem;">
                     <span style="font-size: 1.2rem; margin-right: 10px;">🏠</span> Residential House
                 </div>
@@ -143,7 +174,7 @@ if st.session_state.show_mobile:
     with m_col1:
         # Mocking a phone screen with CSS
         st.markdown(f"""
-            <div style="width: 250px; height: 500px; border: 16px solid #333; border-top-width: 60px; border-bottom-width: 60px; border-radius: 36px; background: white; position: relative;">
+            <div style="width: 250px; max-width: 100%; height: 500px; border: 16px solid #333; border-top-width: 60px; border-bottom-width: 60px; border-radius: 36px; background: white; position: relative; margin: auto;">
                 <div style="padding: 20px; color: black; font-family: sans-serif;">
                     <div style="background: #00c300; color: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; font-size: 0.8em;">
                         <b>LINE Notify</b><br>
